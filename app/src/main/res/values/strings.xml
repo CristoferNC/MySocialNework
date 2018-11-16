@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MySocialNework</string>
+    <string name="drawer_open">Drawe Open</string>
+    <string name="drawer_close">Drawe Close</string>
+</resources>
