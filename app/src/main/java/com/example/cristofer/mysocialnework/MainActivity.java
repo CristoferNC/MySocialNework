@@ -354,8 +354,7 @@ public class MainActivity extends AppCompatActivity{
                 break;
 
             case R.id.navegation_profile:
-                Intent intent = new Intent(this, UserProfileInformationActivity.class);
-                startActivity(intent);
+                Snackbar.make(myDrawerLayout, "Perfil", Snackbar.LENGTH_SHORT).show();
                 break;
 
             case R.id.navegation_home:
