@@ -2,4 +2,7 @@
     <string name="app_name">MySocialNework</string>
     <string name="drawer_open">Drawe Open</string>
     <string name="drawer_close">Drawe Close</string>
+    <string-array name="share">
+        <item>Compartir</item>
+    </string-array>
 </resources>

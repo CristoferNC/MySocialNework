@@ -63,6 +63,7 @@ public class UserProfileInformationActivity extends AppCompatActivity {
     private static final int SELECT_FILE = 2;
     private StorageReference userProfileImageRef;
     private StorageReference storage;
+    private String download;
     final static int Gallery_Pick = 1;
 
     //FIELD'S URI
@@ -153,7 +154,7 @@ public class UserProfileInformationActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        Toast.makeText(UserProfileInformationActivity.this, "Please select profile image first.", Toast.LENGTH_SHORT).show();
+
                     }
                 }
             }
@@ -198,13 +199,8 @@ public class UserProfileInformationActivity extends AppCompatActivity {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                myProgressDialog.setTitle("Estableciendo Imagen de Perfil");
-                myProgressDialog.setMessage("Espere un momento...");
-                myProgressDialog.show();
-                myProgressDialog.setCanceledOnTouchOutside(true);
-
                 imageHoldUri = result.getUri();
-                StorageReference filePath = userProfileImageRef.child(currentUserId + ".jpg");
+                final StorageReference filePath = userProfileImageRef.child(currentUserId + ".jpg");
 
                 filePath.putFile(imageHoldUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -212,22 +208,29 @@ public class UserProfileInformationActivity extends AppCompatActivity {
                         if(task.isSuccessful()){
 
                             Toast.makeText(UserProfileInformationActivity.this, "Imagen Guardada Exitosamente! en firebase Storage", Snackbar.LENGTH_LONG).show();
-                            final String downloadUrl = task.getResult().getStorage().getDownloadUrl().toString();
-
-                            myDatabaseReference.child("profileimage").setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            final UploadTask uploadTask = filePath.putFile(imageHoldUri);
+                            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                 @Override
-                                public void onComplete(Task<Void> task) {
-                                    if(task.isSuccessful()){
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    Task<Uri> uriTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                                        @Override
+                                        public Task<Uri> then(Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                            if(!task.isSuccessful()){
+                                                throw task.getException();
+                                            }
+                                            download = filePath.getDownloadUrl().toString();
+                                            return filePath.getDownloadUrl();
 
-                                        Intent selfIntent = new Intent(UserProfileInformationActivity.this, UserProfileInformationActivity.class);
-                                        startActivity(selfIntent);
-                                        Toast.makeText(UserProfileInformationActivity.this, "Imagen Guardada Exitosamente en Firebase Databse", Snackbar.LENGTH_LONG).show();
-                                        myProgressDialog.dismiss();
-                                    } else{
-                                        String messageError = task.getException().getMessage();
-                                        Toast.makeText(UserProfileInformationActivity.this, "Error: "+messageError, Snackbar.LENGTH_LONG).show();
-                                        myProgressDialog.dismiss();
-                                    }
+                                        }
+                                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                        @Override
+                                        public void onComplete(Task<Uri> task) {
+                                            if(task.isSuccessful()){
+                                                download = task.getResult().toString();
+                                                SaveInformationAccount();
+                                            }
+                                        }
+                                    });
                                 }
                             });
                         }
@@ -310,6 +313,7 @@ public class UserProfileInformationActivity extends AppCompatActivity {
             userMap.put("gender", "Vacio");
             userMap.put("dob", "Vacio");
             userMap.put("relationshipstatus", "Vacio");
+            userMap.put("profileimage", download);
             myDatabaseReference.updateChildren(userMap).addOnCompleteListener(new OnCompleteListener() {
                 @Override
                 public void onComplete(@NonNull Task task) {

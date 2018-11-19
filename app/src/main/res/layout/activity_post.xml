@@ -1,9 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Post.PostActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        android:id="@+id/updatePostToolbar"
+        layout="@layout/bar_layout"/>
+
+    <ImageButton
+        android:id="@+id/btnPostImage"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_below="@id/updatePostToolbar"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/select_image" />
+
+    <RelativeLayout
+        android:id="@+id/postRelative2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnPostImage"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp">
+
+        <ImageView
+            android:id="@+id/imgViewUserInformation"
+            android:layout_width="3dp"
+            android:layout_height="60dp"
+            android:background="@drawable/background"
+            android:padding="8dp"
+            android:tint="@color/graylight" />
+
+        <EditText
+            android:id="@+id/tvPostDescription"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@id/imgViewUserInformation"
+            android:background="@color/editTextBF"
+            android:hint="Escribe lo que piensas..."
+            android:inputType="textMultiLine"
+            android:padding="10dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textSize="15sp" />
+
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/btnAddPost"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="65dp"
+        android:background="@drawable/button_background"
+        android:text="AÑADIR POST"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+
+
+</RelativeLayout>

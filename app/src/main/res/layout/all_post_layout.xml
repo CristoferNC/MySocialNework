@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="4dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/post_border"
+        android:layout_marginTop="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:padding="5dp"
+            android:orientation="horizontal">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/postProfileImage"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/profile"
+                android:scaleType="centerCrop"
+                android:layout_marginStart="4dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+
+
+                <TextView
+                    android:id="@+id/profilePostUserName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="User Name"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="8dp"
+                    android:textAlignment="textStart"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="5dp"
+                    android:padding="2dp">
+
+                    <TextView
+                        android:id="@+id/textLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Estuvo en:"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="13sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/textLocationCity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:layout_marginStart="05dp"
+                        android:textColor="@android:color/black"/>
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Descripcion del post..."
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"
+            android:padding="3dp"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"/>
+
+        <ImageView
+            android:id="@+id/postImage"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_margin="2dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"/>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="2dp"
+            android:background="@color/colorPrimaryDark"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="5dp"
+                android:padding="2dp">
+
+
+
+                <TextView
+                    android:id="@+id/textShare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Publicado: "
+                    android:textColor="@android:color/darker_gray"
+                    android:linksClickable="true"
+                    android:textSize="13sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/textDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fecha"
+                    android:textColor="@android:color/black"
+                    android:linksClickable="true"
+                    android:textSize="13sp"/>
+
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

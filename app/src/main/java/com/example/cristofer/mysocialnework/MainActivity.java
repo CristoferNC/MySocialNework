@@ -1,21 +1,43 @@
 package com.example.cristofer.mysocialnework;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
 import com.example.cristofer.mysocialnework.Post.PostActivity;
+import com.example.cristofer.mysocialnework.Post.Posts;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -30,7 +52,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity{
+
+
 
     //FIELD'S
     private NavigationView myNavigationView;
@@ -40,11 +67,18 @@ public class MainActivity extends AppCompatActivity{
     private Toolbar myToolBar;
     private ImageButton btnAddNewPost;
     private CircleImageView navCircleImage;
+    private static LocationManager locationManager;
     private TextView navProfileName;
+    private static TextView tvLocationCity;
+    double lon;
+    double lat;
+    private TextView textDate;
+    private TextView textTime;
 
     //FIREBASE
     private FirebaseAuth myAuth;
     private DatabaseReference myDatabaseReference;
+    private DatabaseReference postsRef;
     String currentUserId;
 
     @Override
@@ -56,6 +90,7 @@ public class MainActivity extends AppCompatActivity{
         myAuth = FirebaseAuth.getInstance();
         currentUserId = myAuth.getCurrentUser().getUid();
         myDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
+        postsRef = FirebaseDatabase.getInstance().getReference().child("Post");
 
         //ASSING ID'S
         myNavigationView = findViewById(R.id.myNavigationViewMain);
@@ -63,10 +98,13 @@ public class MainActivity extends AppCompatActivity{
         myListPost = findViewById(R.id.myUsersPostList);
         myToolBar = findViewById(R.id.toolbarMain);
         btnAddNewPost = findViewById(R.id.btnAddNewPost);
+        textDate = findViewById(R.id.textDate);
+        tvLocationCity = findViewById(R.id.textLocationCity);
 
         //ACTION BAR SUPPORT
         setSupportActionBar(myToolBar);
         getSupportActionBar().setTitle("Inicio");
+
 
         //DRAWER TOOGLE
         actionBarDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, myDrawerLayout,R.string.drawer_open, R.string.drawer_close);
@@ -74,6 +112,12 @@ public class MainActivity extends AppCompatActivity{
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //RECYCLE VIEW
+        myListPost.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager =  new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        myListPost.setLayoutManager(linearLayoutManager);
 
         //INFLATING NAV_VIEW
         View nv = myNavigationView.inflateHeaderView(R.layout.nav_header);
@@ -122,8 +166,82 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 UserToPost();
+                hereLocation();
             }
         });
+
+        DisplayAllUsersPost();
+    }
+
+    private void DisplayAllUsersPost() {
+        FirebaseRecyclerAdapter<Posts, PostsViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Posts, PostsViewHolder>
+                (
+                        Posts.class,
+                        R.layout.all_post_layout,
+                        PostsViewHolder.class,
+                        postsRef
+                ) {
+
+            @Override
+            protected void populateViewHolder(PostsViewHolder viewHolder, Posts posts, int i) {
+                viewHolder.setFullname(posts.getFullname());
+                viewHolder.setDate(posts.getDate());
+                viewHolder.setDescription(posts.getDescription());
+                viewHolder.setProfileimage(getApplicationContext(), posts.getProfileimage());
+                viewHolder.setPostimage(getApplicationContext(), posts.getPostimage());
+
+            }
+        };
+        myListPost.setAdapter(firebaseRecyclerAdapter);
+    }
+
+    public static  class PostsViewHolder extends RecyclerView.ViewHolder{
+
+        View myView;
+
+        public PostsViewHolder(@NonNull View itemView) {
+            super(itemView);
+            myView = itemView;
+        }
+
+        public void setFullname(String fullname)
+        {
+            TextView username =  myView.findViewById(R.id.profilePostUserName);
+            username.setText(fullname);
+        }
+
+        public void setProfileimage(Context context, String profileimage)
+        {
+            CircleImageView image =  myView.findViewById(R.id.postProfileImage);
+            Picasso.with(context).load(profileimage).into(image);
+        }
+
+        public void set(View myView) {
+        }
+
+        public void setDate(String date)
+        {
+            TextView PostDate = myView.findViewById(R.id.textDate);
+            PostDate.setText("  " + date);
+        }
+
+        public void setDescription(String description)
+        {
+            TextView PostDescription = myView.findViewById(R.id.textDescription);
+            PostDescription.setText(description);
+        }
+
+        public void setPostimage(Context context1,  String postimage)
+        {
+            ImageView PostImage = myView.findViewById(R.id.postImage);
+            Picasso.with(context1).load(postimage).into(PostImage);
+        }
+
+        public void setLocation(String location){
+            TextView tvLocation = myView.findViewById(R.id.textLocationCity);
+            tvLocation.setText(location);
+        }
+
     }
 
     @Override
@@ -135,6 +253,45 @@ public class MainActivity extends AppCompatActivity{
             UserToLogin();
         } else{
             CheckUserExistence();
+        }
+    }
+
+    private void hereLocation(){
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+
+            //TODO
+
+            return ;
+        }
+
+        Location location = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        onLocationChanged(location);
+        loc_finc(location);
+
+    }
+
+    private void onLocationChanged(Location location) {
+        lon = location.getLongitude();
+        lat = location.getLatitude();
+        tvLocationCity.setText("Long: "+lon +"Lat: " + lat);
+    }
+
+    private void loc_finc(Location location){
+        try{
+            Geocoder geocoder = new Geocoder(this);
+            List<Address> addresses = null;
+            addresses = geocoder.getFromLocation(lat, lon, 1);
+            String country = addresses.get(0).getCountryName();
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            tvLocationCity.setText("City: " +city);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Error: "+ e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -228,5 +385,7 @@ public class MainActivity extends AppCompatActivity{
         }
 
     }
+
+
 
 }
